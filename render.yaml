@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: futo-chatbot
+    runtime: node
+    buildCommand: npm install && cd server && npm install
+    startCommand: cd server && node index.js
+    envVars:
+      - key: PORT
+        value: 2000
+      - key: OPENROUTER_API_KEY
+        value: your-api-key-here
