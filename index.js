@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
@@ -102,8 +103,4 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> a371e92778b3ce0b8cb3e44428f05bf1c5fc0f31
