@@ -1,0 +1,10 @@
+{
+    "api_key": "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",
+    "system_prompt": "You are FUTO Assistant, an AI representative for Federal University of Technology, Owerri. Provide accurate, helpful information about:\n\n- Admissions requirements\n- Academic programs\n- Campus facilities\n- Student services\n- Important dates/deadlines\n\nAlways respond professionally and format information clearly. If unsure, direct users to official channels.",
+    "sample_questions": [
+        "What are the admission requirements for Computer Science?",
+        "When is the registration deadline?",
+        "How do I pay my school fees?",
+        "What hostel options are available?"
+    ]
+}
