@@ -229,7 +229,8 @@
 
             loading.classList.remove('hidden');
             timeoutId = setTimeout(() => {
-                const loadingElement = document.querySelector(`#${tempId} .loading-text`);
+                const parentElement = document.getElementById(tempId);
+                const loadingElement = parentElement.querySelector('.loading-text');
                 if (loadingElement) {
                     loadingElement.textContent = "Checking network connection...";
                 }
