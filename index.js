@@ -64,7 +64,8 @@ app.post('/chat', async (req, res) => {
       'https://openrouter.ai/api/v1/chat/completions',
 
       {
-        model: 'google/gemini-flash-experimental',//'deepseek/deepseek-r1:free',
+        model:// 'google/gemini-flash-experimental',//
+        'deepseek/deepseek-r1:free',
         messages: [
           {
             role: "system",
