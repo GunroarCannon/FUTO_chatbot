@@ -52,7 +52,8 @@ app.post('/chat', async (req, res) => {
   try {
     const { message } = req.body;
     
-    if (!message) {
+    if (!message) 
+      {
       return res.status(400).json({ error: 'Message is required' });
     }
 
@@ -61,6 +62,7 @@ app.post('/chat', async (req, res) => {
 
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
+
       {
         model: 'google/gemini-flash-experimental',//'deepseek/deepseek-r1:free',
         messages: [
