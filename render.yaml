@@ -3,7 +3,7 @@ services:
     name: futo-chatbot
     runtime: node
     buildCommand: npm install && cd server && npm install
-    startCommand: cd server && node index.js
+    startCommand: cd server && node -r dotenv/config index.js
     envVars:
       - key: PORT
         value: 2000
