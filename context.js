@@ -1,6 +1,8 @@
-// context.js - Updated FUTO Assistant Configuration
+// context.js - Updated FUTO Assistant Configuration// context.js
+require('dotenv').config();
+
 module.exports = {
-  api_key: "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",
+  api_key: process.env.OPENROUTER_API_KEY,
   
   system_prompt: `
 # FUTO Assistant Core Identity
