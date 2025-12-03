@@ -1,127 +1,187 @@
+// --- Client-Side JavaScript (index.html <script> contents) ---
 
-        const chatLog = document.getElementById('chat-log');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const loading = document.getElementById('loading');
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        let timeoutId;
+// Variable declarations
+const chatLog = document.getElementById('chat-log');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const loading = document.getElementById('loading');
+// Get timezone once for the session key
+const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+let timeoutId;
 
-        // Initial bot message
-        chatLog.innerHTML = `
-            <div class="bot-message">
-                <strong>FUTO Assistant:</strong> Welcome to the Federal University of Technology, Owerri chatbot! 
-                I can help with admissions, academics, campus life, and more. How may I assist you today?
+// Initial bot message
+chatLog.innerHTML = `
+    <div class="bot-message">
+        <strong>FUTO Assistant:</strong> Welcome to the Federal University of Technology, Owerri chatbot! 
+        I can help with admissions, academics, campus life, and more. How may I assist you today?
+    </div>
+`;
+
+// --- Secure Event Attachment Helper Function (New) ---
+function attachMessageActions(tempId) {
+    // We use a unique ID for the final container to ensure we target the right element
+    const messageContainer = document.getElementById(`${tempId}-final`);
+    if (!messageContainer) return;
+
+    // 1. Attach Copy Listener
+    // Select the button using the data-action attribute instead of an ID
+    const copyButton = messageContainer.querySelector('[data-action="copy"]');
+    if (copyButton) {
+        copyButton.addEventListener('click', function() {
+            // 'this' refers to the clicked button, passed to the original copyResponse
+            window.copyResponse(this); 
+        });
+    }
+
+    // 2. Attach Retry Listener
+    const retryButton = messageContainer.querySelector('[data-action="retry"]');
+    if (retryButton) {
+        // Read the message payload securely stored in the data attribute
+        const encodedMsg = retryButton.getAttribute('data-message');
+        retryButton.addEventListener('click', function() {
+            const decodedMsg = decodeURIComponent(encodedMsg);
+            window.retry(decodedMsg); 
+        });
+    }
+}
+
+// Function to send user message to the server
+async function sendMessage(retryMessage) {
+    const message = retryMessage || userInput.value.trim();
+    if (!message) return;
+
+    if (!retryMessage) {
+        chatLog.innerHTML += `<div class="user-message"><strong>You:</strong> ${message}</div>`;
+        userInput.value = '';
+    }
+
+    const tempId = Date.now();
+    // Use the temporary ID for the loading state container
+    chatLog.innerHTML += `
+        <div id="${tempId}" class="bot-message">
+            <div class="loading-text">Generating response...</div>
+        </div>
+    `;
+
+    loading.classList.remove('hidden');
+    timeoutId = setTimeout(() => {
+        const parentElement = document.getElementById(tempId);
+        const loadingElement = parentElement.querySelector('.loading-text');
+        if (loadingElement) {
+            loadingElement.textContent = "Checking network connection...";
+        }
+    }, 5000);
+
+    try {
+        console.log('Sending message:', message);
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // Pass timezone for session management on the server
+            body: JSON.stringify({ message, timezone }), 
+        });
+
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        
+        // --- SECURE HTML INJECTION (No onclick attributes) ---
+        // We use tempId-final to target the element after insertion for event listeners
+        document.getElementById(tempId).outerHTML = `
+            <div class="bot-message" id="${tempId}-final">
+                <strong>FUTO Assistant:</strong> ${data.response}
+                <div class="message-actions">
+                    <button class="action-btn" data-action="copy">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                    <button class="action-btn" data-action="retry" data-message="${encodeURIComponent(message)}">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
             </div>
         `;
-        // Function to send user message to the server
-        async function sendMessage(retryMessage) {
-            const message = retryMessage || userInput.value.trim();
-            if (!message) return;
-
-            if (!retryMessage) {
-                chatLog.innerHTML += `<div class="user-message"><strong>You:</strong> ${message}</div>`;
-                userInput.value = '';
-            }
-
-            const tempId = Date.now();
-            chatLog.innerHTML += `
-                <div id="${tempId}" class="bot-message">
-                    <div class="loading-text">Generating response...</div>
+        
+        // --- ATTACH LISTENERS ---
+        attachMessageActions(tempId);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        clearTimeout(timeoutId);
+        
+        // --- SECURE HTML INJECTION for Error Message ---
+        const errorMsg = error.message || "Sorry, I'm having trouble connecting. Please try again later.";
+        
+        document.getElementById(tempId).outerHTML = `
+            <div class="bot-message" id="${tempId}-final">
+                <strong>FUTO Assistant:</strong> ${errorMsg}
+                <div class="message-actions">
+                    <button class="action-btn" data-action="copy">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                    <button class="action-btn" data-action="retry" data-message="${encodeURIComponent(message)}">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
                 </div>
-            `;
+            </div>
+        `;
+        
+        // --- ATTACH LISTENERS ---
+        attachMessageActions(tempId);
+        
+    } finally {
+        loading.classList.add('hidden');
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+}
 
-            loading.classList.remove('hidden');
-            timeoutId = setTimeout(() => {
-                const parentElement = document.getElementById(tempId);
-                const loadingElement = parentElement.querySelector('.loading-text');
-                if (loadingElement) {
-                    loadingElement.textContent = "Checking network connection...";
-                }
-            }, 5000);
+// Retry function (scoped globally)
+window.retry = function(message) {
+    sendMessage(message);
+}
 
-            try {
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message }),
-                });
+// Copy response function (scoped globally)
+window.copyResponse = function(button) {
+    const messageElement = button.closest('.bot-message');
+    let messageText = '';
+    
+    // Attempt to find the main text content, ignoring actions/strong tags
+    const contentNodes = Array.from(messageElement.childNodes).filter(
+        node => node.nodeName !== 'STRONG' && !node.classList?.contains('message-actions')
+    );
+    
+    // Join text content from all relevant nodes
+    messageText = contentNodes.map(node => 
+        (node.nodeType === Node.TEXT_NODE ? node.textContent.trim() : node.innerText.trim())
+    ).filter(text => text.length > 0).join('\n');
+    
+    // Ensure content is extracted cleanly for copying
+    const responseText = messageText.replace(/FUTO Assistant:/, '').trim();
 
-                clearTimeout(timeoutId);
-                
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+    navigator.clipboard.writeText(responseText).then(() => {
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check2"></i>';
+        button.style.color = '#006400';
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+            button.style.color = '';
+        }, 2000);
+    }).catch(err => {
+        console.error('Could not copy text: ', err);
+    });
+}
 
-                const data = await response.json();
-                
-                document.getElementById(tempId).outerHTML = `
-                    <div class="bot-message">
-                        <strong>FUTO Assistant:</strong> ${data.response}
-                        <div class="message-actions">
-                            <button class="action-btn" onclick="copyResponse(this)">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                            <button class="action-btn" onclick="retry('${encodeURIComponent(message)}')">
-                                <i class="bi bi-arrow-clockwise"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error:', error);
-                clearTimeout(timeoutId);
-                document.getElementById(tempId).outerHTML = `
-                    <div class="bot-message">
-                        <strong>FUTO Assistant:</strong> ${error.message || "Sorry, I'm having trouble connecting. Please try again later."}
-                        <div class="message-actions">
-                            <button class="action-btn" onclick="copyResponse(this)">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                            <button class="action-btn" onclick="retry('${encodeURIComponent(message)}')">
-                                <i class="bi bi-arrow-clockwise"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } finally {
-                loading.classList.add('hidden');
-                chatLog.scrollTop = chatLog.scrollHeight;
-            }
-        }
+// Event listener for send button (Attached securely)
+sendBtn.addEventListener('click', () => sendMessage());
 
-        // Retry function
-        window.retry = function(encodedMessage) {
-            const message = decodeURIComponent(encodedMessage);
-            sendMessage(message);
-        }
-
-        // Copy response function
-        window.copyResponse = function(button) {
-            const messageElement = button.closest('.bot-message');
-            const messageText = Array.from(messageElement.childNodes)
-                .filter(node => node.nodeType === Node.TEXT_NODE)
-                .map(node => node.textContent.trim())
-                .join(' ');
-            
-            navigator.clipboard.writeText(messageText).then(() => {
-                const originalIcon = button.innerHTML;
-                button.innerHTML = '<i class="bi bi-check2"></i>';
-                button.style.color = '#006400';
-                setTimeout(() => {
-                    button.innerHTML = originalIcon;
-                    button.style.color = '';
-                }, 2000);
-            });
-        }
-
-        // Event listener for send button
-        sendBtn.addEventListener('click', () => sendMessage());
-
-        // Event listener for Enter key
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+// Event listener for Enter key (Attached securely)
+userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
