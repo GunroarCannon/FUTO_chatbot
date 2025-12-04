@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const marked = require('marked'); // Keep for parsing system prompt/bot responses
+const cors = require('cors');
 
 // GEMINI NATIVE SDK (Use @google/genai for best results)
 // Assuming you have installed: npm install @google/genai
@@ -96,7 +97,7 @@ if (false) {
       },
     }));
 }
-
+app.use(cors());
 app.use(bodyParser.json({ limit: '10kb' })); 
 app.use(express.static(__dirname, { maxAge: '1h' }));
 
