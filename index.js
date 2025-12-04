@@ -11,7 +11,7 @@ const marked = require('marked'); // Keep for parsing system prompt/bot response
 // Assuming you have installed: npm install @google/genai
 const { GoogleGenAI } = require("@google/genai"); 
 
-// CONTEXT & CONFIG (Replace with your actual context.js content)
+// CONTEXT & CONFIG
 const context = require('./context.js');
 
 // --- 1. GEMINI API INITIALIZATION & LOGIC MODULE ---
@@ -78,29 +78,25 @@ const PORT = process.env.PORT || 2000;
 // Remove redundant/confusing OpenAI initialization
 // const chatClient = new OpenAI({...}); 
 
-// Enhanced Middleware Stack
-app.use(helmet({contentSecurityPolicy: {
-    directives: {
-      // Keep your existing directives (e.g., 'default-src', 'style-src', etc.)
-      // if you have others, or inherit default Helmet ones.
+//not needed for simple chatbot
+if (false) {
+    // Enhanced Middleware Stack
+    app.use(helmet({contentSecurityPolicy: {
+        directives: {
+          // CRITICAL FIX: Explicitly allow inline event handlers
+          // by setting 'unsafe-inline' on the script-src-attr directive.
+          'script-src-attr': ["'unsafe-inline'"],
+    
+          // If you have a primary script-src directive, ensure it's still present:
+          'script-src': ["'self'"], 
+        },
+        // Set to false if using a <meta> tag CSP in HTML,
+        // but the header is usually preferred.
+        reportOnly: false, 
+      },
+    }));
+}
 
-      // CRITICAL FIX: Explicitly allow inline event handlers
-      // by setting 'unsafe-inline' on the script-src-attr directive.
-      'script-src-attr': ["'unsafe-inline'"],
-      
-      // If you are also getting errors for inline <script> blocks, 
-      // you may need to apply this to the main script-src directive as well, 
-      // but only script-src-attr is needed for inline *handlers*.
-      // 'script-src': ["'self'", "'unsafe-inline'"], 
-      
-      // If you have a primary script-src directive, ensure it's still present:
-      'script-src': ["'self'"], 
-    },
-    // Set to false if you are using a <meta> tag CSP in your HTML,
-    // but the header is usually preferred.
-    reportOnly: false, 
-  },
-})); 
 app.use(bodyParser.json({ limit: '10kb' })); 
 app.use(express.static(__dirname, { maxAge: '1h' }));
 
