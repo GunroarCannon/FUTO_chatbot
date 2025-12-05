@@ -166,9 +166,23 @@ app.post('/chat', async (req, res) => {
         conversationHistory.push(formatMessage('user', message));
         console.log(`History length: ${conversationHistory.length}`);
 
+        const MAX_RECENT_MESSAGES = 7; 
+    
+        // a. Get all history *except* the system prompt (which is conversationHistory[0])
+        const recentMessages = conversationHistory.slice(1);
+    
+        // b. Slice the rest of the history to only include the last MAX_RECENT_MESSAGES
+        const limitedRecentHistory = recentMessages.slice(-MAX_RECENT_MESSAGES);
+    
+        // c. Reconstruct the final list to send: [System Prompt] + [Recent Messages]
+        const historyToSend = [
+            conversationHistory[0], // ALWAYS include the system prompt
+            ...limitedRecentHistory // Spread the limited recent history
+        ];
+
         // **CRITICAL CHANGE: Call the native Gemini function**
         // Send the last 8 messages (including system prompt) for context
-        const botResponseText = await askGeminiWithSearch(conversationHistory.slice(-8)); 
+        const botResponseText = await askGeminiWithSearch(historyToSend); 
         
         // Store updated history
         conversationHistory.push(formatMessage('model', botResponseText)); // Store 'model' response
