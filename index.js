@@ -191,6 +191,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Liveness Check
+app.get('/healthz', (req, res) => {
+    res.status(200).send({ status: 'up' });
+});
+
 // Server Start
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
