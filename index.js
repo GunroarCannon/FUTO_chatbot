@@ -41,7 +41,7 @@ async function askGeminiWithSearch(history) {
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash", // Efficient model for search/chat
+            model: "gemini-2.0-flash", // Efficient model for search/chat
             contents: contents,
             config: {
                 generationConfig: generationConfig,
