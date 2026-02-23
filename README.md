@@ -3,7 +3,7 @@ Chatbot to be theoretically used on the official site of the Federal University 
 
 The FUTO Assistant is a specialized, context-aware chatbot designed to provide accurate and up-to-date information regarding the Federal University of Technology, Owerri (FUTO). It serves as the official digital guide for prospective and current students, offering detailed information on academic programs, departmental structure, and campus services.
 
-✨ Key Features
+The Key Features
 
 FUTO Academic Programs: Contains an internal, definitive database of all Schools and Departments (e.g., SICT, SEET, SAAT) to ensure accurate program information, overriding general search results when academic structure is queried.
 
@@ -15,13 +15,13 @@ Context Injection: Utilizes a robust system prompt to enforce a specific identit
 
 Single Source of Truth: Implements a Hierarchy of Authority to resolve conflicting data, prioritizing the pre-defined internal academic structure over external search results.
 
-🚀 Live Demo
+Live Demo
 
 You can interact with the live version of the FUTO Assistant here:
 
-➡️ https://futo-chatbot-server.onrender.com
+https://futo-chatbot-server.onrender.com
 
-💻 Technology Stack
+Technology Stack
 
 The application is built using a modern, efficient, and secure stack:
 
