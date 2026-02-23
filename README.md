@@ -95,4 +95,3 @@ Run the server:
 node index.js
 
 
-The application will typically be available at http://localhost:3000.
