@@ -97,8 +97,6 @@
                 <span class="text-xs font-bold leading-none">Ask AI</span>
             </div>
 
-  <h1 class="text-4xl font-bold uppercase tracking-widest">Tailwind is Working!</h1>
-  <p class="mt-4 text-indigo-100">If you see a purple box with rounded corners, your CSS is being served correctly by Express.</p>
             <div id="chat-modal-container"
                 class="fixed inset-0 z-[9998] flex items-center justify-center 
                     bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
