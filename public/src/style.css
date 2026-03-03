@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Tell Tailwind to look at your widget JS file specifically */
+@source "../futo_chatbot_widget.js";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

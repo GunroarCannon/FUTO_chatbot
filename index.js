@@ -247,7 +247,10 @@ const PORT = process.env.PORT || 2000;
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10kb' })); 
-app.use(express.static(__dirname, { maxAge: '1h' }));
+app.use(express.static(path.join(__dirname, 'public'), { 
+    maxAge: '1h',
+    index: 'test.html' 
+}));
 
 // Environment Validation
 const validateConfig = () => {
