@@ -170,13 +170,15 @@ async function askGeminiWithSearch(history) {
 
     const MAX_ATTEMPTS = FALLBACK_KEYS.length; 
     let attempts = 0;
-    let model = "gemini-3.1-flash-live-preview"; // discontinued "gemini-2.5-flash"; // Default model
+    let model =  "gemini-2.5-flash";
+        //Changed back temporarily from "gemini-3.1-flash-live-preview"; // discontinued "gemini-2.5-flash"; // Default model
     let switched = false;
 
     while (attempts < MAX_ATTEMPTS+1) {
         attempts++;
         if (attempts >= MAX_ATTEMPTS && !switched) {
-            model = "gemini-3.1-flash-lite-preview", //This is discontinued: "gemini-2.5-flash-lite";
+            model = "gemini-2.5-flash-lite",
+                //changed back temporarily from "gemini-3.1-flash-lite-preview", //This is discontinued: "gemini-2.5-flash-lite";
             attempts = 1;
             currentKeyIndex = 0;
             console.log("Switching to gemini-3.1-flash-lite-preview");//gemini-2.5-flash-lite model");
